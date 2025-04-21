@@ -90,24 +90,45 @@ export async function getFeedbackByInterviewId(
   return { id: feedbackDoc.id, ...feedbackDoc.data() } as Feedback;
 }
 
+// export async function getLatestInterviews(
+//   params: GetLatestInterviewsParams
+// ): Promise<Interview[] | null> {
+//   const { userId, limit = 20 } = params;
+
+//   const interviews = await db
+//     .collection("interviews")
+//     .orderBy("createdAt", "desc")
+//     .where("finalized", "==", true)
+//     .where("userId", "!=", userId)
+//     .limit(limit)
+//     .get();
+
+//   return interviews.docs.map((doc) => ({
+//     id: doc.id,
+//     ...doc.data(),
+//   })) as Interview[];
+// }
+
 export async function getLatestInterviews(
-  params: GetLatestInterviewsParams
-): Promise<Interview[] | null> {
-  const { userId, limit = 20 } = params;
-
-  const interviews = await db
-    .collection("interviews")
-    .orderBy("createdAt", "desc")
-    .where("finalized", "==", true)
-    .where("userId", "!=", userId)
-    .limit(limit)
-    .get();
-
-  return interviews.docs.map((doc) => ({
-    id: doc.id,
-    ...doc.data(),
-  })) as Interview[];
+    params: GetLatestInterviewsParams
+  ): Promise<Interview[] | null> {
+    const { userId, limit = 20 } = params;
+  
+    const interviews = await db
+      .collection("interviews")
+      .where("finalized", "==", true) // Equality filter first
+      .where("userId", "!=", userId)  // Inequality filter second
+      .orderBy("createdAt", "desc")   // OrderBy last
+      .limit(limit)
+      .get();
+  
+    return interviews.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    })) as Interview[];
 }
+
+
 
 export async function getInterviewsByUserId(
   userId: string
